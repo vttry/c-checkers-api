@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.ejs": "html",
+        "stack": "cpp",
+        "random": "c",
+        "gamethree.h": "c",
+        "checkerturn.h": "c",
+        "sglib.h": "c"
+    }
+}
