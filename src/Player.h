@@ -1,0 +1,7 @@
+#if !defined(INCLUDED_PLAYER_H)
+#define INCLUDED_PLAYER_H
+
+#define WHITE_PLAYER 0
+#define BLACK_PLAYER 1
+
+#endif // INCLUDED_PLAYER_H

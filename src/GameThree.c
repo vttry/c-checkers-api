@@ -6,8 +6,7 @@ void FreeGameThree(GameThree *gameThree)
     {
         for (size_t i = 0; i < gameThree->childrenCount; i++)
         {
-            FreeGameThree(&gameThree[i]);
-            free(&gameThree[i]);
+            FreeGameThree(gameThree->children[i]);
         }
     }
     free(gameThree);
