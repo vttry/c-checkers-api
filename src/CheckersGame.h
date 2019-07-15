@@ -48,6 +48,9 @@ extern "C"
                                           const int firstPosition[2],
                                           MoveThreeList **moveThreeList);
 
+    //build three of possible simple moves for the piece without jumps
+    bool buildPieceSimpleMoveList(const char board[8][8], const int startPosition[2], MoveThreeList **moveThreeList);
+
 #ifdef __cplusplus
 }
 #endif

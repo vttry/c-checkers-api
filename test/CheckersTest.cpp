@@ -95,7 +95,7 @@ TEST_CASE("Check Moves")
     }
 }
 
-TEST_CASE("Check Moves Treelist building")
+TEST_CASE("Check Jumps Treelist building")
 {
     char board[8][8] = {
         {'1', ' ', '1', ' ', '1', ' ', '1', ' '},
@@ -134,5 +134,63 @@ TEST_CASE("Check Moves Treelist building")
         });
 
         REQUIRE(count == 1);
+    }
+
+}
+
+TEST_CASE("Check simple moves Treelist building")
+{
+    char board[8][8] = {
+        {'1', ' ', '1', ' ', '1', ' ', '1', ' '},
+        {' ', '1', ' ', '1', ' ', '1', ' ', '1'},
+        {'1', ' ', '1', ' ', '1', ' ', '1', ' '},
+        {' ', '#', ' ', '#', ' ', '#', ' ', '#'},
+        {'#', ' ', '#', ' ', '1', ' ', '#', ' '},
+        {' ', '3', ' ', '#', ' ', '#', ' ', '3'},
+        {'3', ' ', '#', ' ', '#', ' ', '#', ' '},
+        {' ', '3', ' ', '3', ' ', '3', ' ', '3'}};
+    {
+        int firstPosition[2] = {0, 0};
+
+        MoveThreeList *threeList = NULL;
+        buildPieceSimpleMoveList(board, firstPosition, &threeList);
+        int count = 0;
+        MoveThreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, threeList, currentItem, next, {
+            count++;
+            free(currentItem);
+        });
+
+        REQUIRE(count == 0);
+    }
+
+    {
+        int firstPosition[2] = {2, 0};
+
+        MoveThreeList *threeList = NULL;
+        buildPieceSimpleMoveList(board, firstPosition, &threeList);
+        int count = 0;
+        MoveThreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, threeList, currentItem, next, {
+            count++;
+            free(currentItem);
+        });
+
+        REQUIRE(count == 1);
+    }
+
+    {
+        int firstPosition[2] = {4, 4};
+
+        MoveThreeList *threeList = NULL;
+        buildPieceSimpleMoveList(board, firstPosition, &threeList);
+        int count = 0;
+        MoveThreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, threeList, currentItem, next, {
+            count++;
+            free(currentItem);
+        });
+
+        REQUIRE(count == 2);
     }
 }
