@@ -1,12 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <sglib.h>
 #include "CheckersGame.h"
-#include "Checker.h"
-#include "CaptureList.h"
-
-static bool findCaptureAndMatchPosition(const char board[8][8],
-                                        CaptureList *captureList,
-                                        const int startPosition[2],
-                                        const int finalPosition[2]);
 
 //Function that check if a coordinate is in the rigth range and on a black field
 static bool checkCoordinate(const int position[2])
@@ -23,6 +18,58 @@ static bool checkCoordinate(const int position[2])
     return (position[0] % 2 == position[1] % 2);
 }
 
+//check if checker is black
+static bool isBlackPiece(const char checker)
+{
+    return checker > '2';
+};
+
+//get checker status
+static const char getFinalStatus(const char checker, int finalPosition[2])
+{
+    if (isBlackPiece(checker))
+    {
+        if (checker == BLACK_KING || finalPosition[0] == 7)
+        {
+            return BLACK_KING;
+        }
+        else
+        {
+            return BLACK_CHECKER;
+        }
+    }
+    else
+    {
+        if (checker == WHITE_KING || finalPosition[0] == 0)
+        {
+            return WHITE_KING;
+        }
+        else
+        {
+            return WHITE_CHECKER;
+        }
+    }
+};
+
+//set piece by type and position
+static void setPieceByTypeAndPosition(char board[8][8], char type, const int position[2])
+{
+    board[position[0]][position[1]] = type;
+}
+
+//return piece by position
+static const char getPieceByPosition(const char board[8][8], const int position[2])
+{
+    return board[position[0]][position[1]];
+}
+
+//copy position
+static void copyPosition(int destination[2], const int position[2])
+{
+    destination[0] = position[0];
+    destination[1] = position[1];
+}
+
 //Function that copy board state to destination
 static void copyBoard(char destinationBoard[8][8], const char originalBoard[8][8])
 {
@@ -35,370 +82,129 @@ static void copyBoard(char destinationBoard[8][8], const char originalBoard[8][8
     }
 }
 
-//we try to make capture and match position
-static bool tryToMakeCaptureAndMatchPosition(const char board[8][8],
-                                             CaptureList *captureList,
-                                             const int startPosition[2],
-                                             const int currentPosition[2],
-                                             const int capturedPosition[2],
-                                             const int finalPosition[2])
+//we try to find all possible moves from current position for a checker
+bool findPossiblePieceJumps(const char board[8][8], const int startPosition[2], MoveList **list)
 {
 
-    if (checkCoordinate(currentPosition) &&
-        (board[currentPosition[0]][currentPosition[1]] == BLACK_EMPTY_FIELD &&
-         board[capturedPosition[0]][capturedPosition[1]] != BLACK_EMPTY_FIELD &&
-         (board[capturedPosition[0]][capturedPosition[1]] != board[startPosition[0]][startPosition[1]] ||
-          board[capturedPosition[0]][capturedPosition[1]] != board[startPosition[0]][startPosition[1]])))
+    //first is right-top
     {
-        //make board copy
+        int finalPosition[2] = {startPosition[0] + 2,
+                                startPosition[1] + 2};
+        int capturedPosition[2] = {startPosition[0] + 1,
+                                   startPosition[1] + 1};
+
+        if (checkCoordinate(finalPosition) &&
+            getPieceByPosition(board, finalPosition) == BLACK_EMPTY_FIELD &&
+            getPieceByPosition(board, capturedPosition) != BLACK_EMPTY_FIELD &&
+            isBlackPiece(getPieceByPosition(board, capturedPosition)) != isBlackPiece(getPieceByPosition(board, startPosition)))
+        {
+            MoveList *currentMove = (MoveList *)malloc(sizeof(MoveList));
+            copyPosition(currentMove->Move.capturedPosition, capturedPosition);
+            copyPosition(currentMove->Move.finalPosition, finalPosition);
+            currentMove->Move.finalStatus = getFinalStatus(getPieceByPosition(board, finalPosition), finalPosition);
+            currentMove->Move.isJump = true;
+            SGLIB_LIST_ADD(MoveList, *list, currentMove, next);
+        }
+    }
+
+    //left-top
+    {
+        int finalPosition[2] = {startPosition[0] - 2,
+                                startPosition[1] + 2};
+        int capturedPosition[2] = {startPosition[0] - 1,
+                                   startPosition[1] + 1};
+        if (checkCoordinate(finalPosition) &&
+            getPieceByPosition(board, finalPosition) == BLACK_EMPTY_FIELD &&
+            getPieceByPosition(board, capturedPosition) != BLACK_EMPTY_FIELD &&
+            isBlackPiece(getPieceByPosition(board, capturedPosition)) != isBlackPiece(getPieceByPosition(board, startPosition)))
+        {
+            MoveList *currentMove = (MoveList *)malloc(sizeof(MoveList));
+            copyPosition(currentMove->Move.capturedPosition, capturedPosition);
+            copyPosition(currentMove->Move.finalPosition, finalPosition);
+            currentMove->Move.finalStatus = getFinalStatus(getPieceByPosition(board, finalPosition), finalPosition);
+            currentMove->Move.isJump = true;
+            SGLIB_LIST_ADD(MoveList, *list, currentMove, next);
+        }
+    }
+
+    //left-bottom
+    {
+        int finalPosition[2] = {startPosition[0] - 2,
+                                startPosition[1] - 2};
+        int capturedPosition[2] = {startPosition[0] - 1,
+                                   startPosition[1] - 1};
+        if (checkCoordinate(finalPosition) &&
+            getPieceByPosition(board, finalPosition) == BLACK_EMPTY_FIELD &&
+            getPieceByPosition(board, capturedPosition) != BLACK_EMPTY_FIELD &&
+            isBlackPiece(getPieceByPosition(board, capturedPosition)) != isBlackPiece(getPieceByPosition(board, startPosition)))
+        {
+            MoveList *currentMove = (MoveList *)malloc(sizeof(MoveList));
+            copyPosition(currentMove->Move.capturedPosition, capturedPosition);
+            copyPosition(currentMove->Move.finalPosition, finalPosition);
+            currentMove->Move.finalStatus = getFinalStatus(getPieceByPosition(board, finalPosition), finalPosition);
+            currentMove->Move.isJump = true;
+            SGLIB_LIST_ADD(MoveList, *list, currentMove, next);
+        }
+    }
+
+    //right-bottom
+    {
+        int finalPosition[2] = {startPosition[0] + 2,
+                                startPosition[1] - 2};
+        int capturedPosition[2] = {startPosition[0] + 1,
+                                   startPosition[1] - 1};
+        if (checkCoordinate(finalPosition) &&
+            getPieceByPosition(board, finalPosition) == BLACK_EMPTY_FIELD &&
+            getPieceByPosition(board, capturedPosition) != BLACK_EMPTY_FIELD &&
+            isBlackPiece(getPieceByPosition(board, capturedPosition)) != isBlackPiece(getPieceByPosition(board, startPosition)))
+        {
+            MoveList *currentMove = (MoveList *)malloc(sizeof(MoveList));
+            copyPosition(currentMove->Move.capturedPosition, capturedPosition);
+            copyPosition(currentMove->Move.finalPosition, finalPosition);
+            currentMove->Move.finalStatus = getFinalStatus(getPieceByPosition(board, finalPosition), finalPosition);
+            currentMove->Move.isJump = true;
+            SGLIB_LIST_ADD(MoveList, *list, currentMove, next);
+        }
+    }
+}
+
+//build three of possible moves for the checker
+bool buildPieceJumpThreeList(const char board[8][8], const int startPosition[2], MoveThreeList **moveThreeList)
+{
+    MoveList *currentMoveList = NULL;
+    MoveList *currentMove = NULL;
+    findPossiblePieceJumps(board, startPosition, &currentMoveList);
+
+    //recursively call buildCheckerMoveThreeList for all finded Move
+    SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveList, currentMoveList, currentMove, next, {
+        //alloc memory for new node and set current Move
+        MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
+        currentMoveThreeList->moveThree.Move = currentMove->Move;
+        copyPosition(currentMoveThreeList->moveThree.Move.capturedPosition, currentMove->Move.capturedPosition);
+        copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, currentMove->Move.finalPosition);
+        currentMoveThreeList->moveThree.Move.finalStatus = currentMove->Move.finalStatus;
+        currentMoveThreeList->moveThree.Move.isJump = true;
+        currentMoveThreeList->moveThree.chidren = NULL;
+        currentMoveThreeList->next = NULL;
+
+        //free currentMove
+        free(currentMove);
+
+        //make copy of board
         char currentBoard[8][8];
         copyBoard(currentBoard, board);
 
-        //make sub move. It means remove captured figure and move figure to its new position without check
-        //put current figure to current cell
-        currentBoard[currentPosition[0]][currentPosition[1]] = currentBoard[startPosition[0]][startPosition[1]];
+        //make swap
+        setPieceByTypeAndPosition(currentBoard, getPieceByPosition(board, startPosition), currentMoveThreeList->moveThree.Move.finalPosition);
+        setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, startPosition);
+        setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, currentMoveThreeList->moveThree.Move.capturedPosition);
 
-        //remove figure from startpostion
-        currentBoard[startPosition[0]][startPosition[1]] = BLACK_EMPTY_FIELD;
+        //call recursively to fill children nodes;
+        buildPieceJumpThreeList(currentBoard, currentMoveThreeList->moveThree.Move.finalPosition, &currentMoveThreeList->moveThree.chidren);
 
-        //remove captured figure
-        currentBoard[capturedPosition[0]][capturedPosition[1]] = BLACK_EMPTY_FIELD;
-
-        //create new capture list
-        CaptureList *currentCaptureList = CreateCaptureList(currentPosition, captureList);
-
-        //recursively call makeCaptureAndMatchPosition to find end of list and match end position
-        if (findCaptureAndMatchPosition(currentBoard,
-                                        currentCaptureList,
-                                        currentPosition,
-                                        finalPosition))
-        {
-            captureList->next = currentCaptureList;
-            return true;
-        }
-    }
-}
-
-//We try to find blackDiagonalBlack Pattern
-bool findFigureBlackDiagonalPattern(const char board[8][8],
-                                    const int offset[2],
-                                    const int startPosition[2],
-                                    int startPointOfPattern[2])
-{
-    int currentPosition[2] = {
-        startPosition[0] + offset[0] * 2,
-        startPosition[1] + offset[1] * 2};
-
-    int capturedPosition[2] = {
-        startPosition[0] + offset[0],
-        startPosition[1] + offset[1]};
-
-    if (checkCoordinate(currentPosition))
-        return false;
-
-    //check if captured position is white field then we recursively continue;
-    if (board[currentPosition[0]][currentPosition[1]] == BLACK_EMPTY_FIELD)
-    {
-        return findFigureBlackDiagonalPattern(board,
-                                              offset,
-                                              startPosition,
-                                              startPointOfPattern);
-    }
-
-    //check if captured position is cell with figure which hasen't the same color and second position is empty black field
-    if (
-        board[capturedPosition[0]][capturedPosition[1]] != BLACK_EMPTY_FIELD &&
-        (board[capturedPosition[0]][capturedPosition[1]] != board[startPosition[0]][startPosition[1]] ||
-         board[capturedPosition[0]][capturedPosition[1]] != board[startPosition[0]][startPosition[1]]))
-    {
-        startPointOfPattern[0] = startPosition[0];
-        startPointOfPattern[1] = startPosition[1];
-        return true;
-    }
-}
-
-//We try to find capture, and match last jump final position with some final position
-//this function can call recursively trought the tryToMakeCaptureAndMatchPosition
-//it is little bit dirty but it allows to avoid code dublication
-static bool findCaptureAndMatchPosition(const char board[8][8],
-                                        CaptureList *captureList,
-                                        const int startPosition[2],
-                                        const int finalPosition[2])
-{
-
-    //we try to make capture and match current position with final position
-    //if it will by succesfully then captureList will be updated
-    //maximum we can find 4 capture paths for each direction
-    if (board[startPosition[0]][startPosition[1]] == WHITE_CHECKER || board[startPosition[0]][startPosition[1]] == BLACK_CHECKER)
-    {
-        //first is right-top
-        {
-            int currentPosition[2] = {startPosition[0] + 2,
-                                      startPosition[1] + 2};
-            int capturedPosition[2] = {startPosition[0] + 1,
-                                       startPosition[1] + 1};
-            if (tryToMakeCaptureAndMatchPosition(board,
-                                                 captureList,
-                                                 startPosition,
-                                                 currentPosition,
-                                                 capturedPosition,
-                                                 finalPosition))
-            {
-                return true;
-            }
-        }
-
-        //left-top
-        {
-            int currentPosition[2] = {startPosition[0] - 2,
-                                      startPosition[1] + 2};
-            int capturedPosition[2] = {startPosition[0] - 1,
-                                       startPosition[1] + 1};
-            if (tryToMakeCaptureAndMatchPosition(board,
-                                                 captureList,
-                                                 startPosition,
-                                                 currentPosition,
-                                                 capturedPosition,
-                                                 finalPosition))
-            {
-                return true;
-            }
-        }
-
-        //left-bottom
-        {
-            int currentPosition[2] = {startPosition[0] - 2,
-                                      startPosition[1] - 2};
-            int capturedPosition[2] = {startPosition[0] - 1,
-                                       startPosition[1] - 1};
-            if (tryToMakeCaptureAndMatchPosition(board,
-                                                 captureList,
-                                                 startPosition,
-                                                 currentPosition,
-                                                 capturedPosition,
-                                                 finalPosition))
-            {
-                return true;
-            }
-        }
-
-        //left-bottom
-        {
-            int currentPosition[2] = {startPosition[0] - 2,
-                                      startPosition[1] - 2};
-            int capturedPosition[2] = {startPosition[0] - 1,
-                                       startPosition[1] - 1};
-            if (tryToMakeCaptureAndMatchPosition(board,
-                                                 captureList,
-                                                 startPosition,
-                                                 currentPosition,
-                                                 capturedPosition,
-                                                 finalPosition))
-            {
-                return true;
-            }
-        }
-
-        //right-bottom
-        {
-            int currentPosition[2] = {startPosition[0] + 2,
-                                      startPosition[1] - 2};
-            int capturedPosition[2] = {startPosition[0] + 1,
-                                       startPosition[1] - 1};
-            if (tryToMakeCaptureAndMatchPosition(board,
-                                                 captureList,
-                                                 startPosition,
-                                                 currentPosition,
-                                                 capturedPosition,
-                                                 finalPosition))
-            {
-                return true;
-            }
-        }
-    } //if (board[startPosition[0]][startPosition[1]] == WHITE_CHECKER || board[startPosition[0]][startPosition[1]] == BLACK_CHECKER)
-
-    // //we try find capture of king for four diag
-    // if (board[startPosition[0]][startPosition[1]] == WHITE_KING || board[startPosition[0]][startPosition[1]] == BLACK_KING)
-    // {
-
-    //     //first we have to get restricted offset
-    //     bool hasRestrictedOffset = false;
-    //     int restrictOffset[2];
-    //     if (captureList->previous != NULL)
-    //     {
-    //         hasRestrictedOffset = true;
-    //         restrictOffset[0] = (startPosition[0] - captureList->previous->position[0]) > 0 ? 1 : -1;
-    //         restrictOffset[1] = (startPosition[1] - captureList->previous->position[1]) > 0 ? 1 : -1;
-    //     }
-
-    //     //first is right-top
-    //     {
-    //         int offset[2] = {1, 1};
-    //         //check if current offset isn't restrict
-    //         if (!hasRestrictedOffset || (offset[0] != restrictOffset[0] && offset[1] != restrictOffset[1]))
-    //         {
-    //             int startPointOfPattern[2];
-    //             //try to pattern that allows to capture figure by king
-    //             if (findFigureBlackDiagonalPattern(board,
-    //                                                offset,
-    //                                                startPosition,
-    //                                                startPointOfPattern))
-    //             {
-    //                 int currentPosition[2] = {startPosition[0] + offset[0] * 2,
-    //                                           startPosition[1] + offset[1] * 2};
-    //                 int capturedPosition[2] = {startPointOfPattern[0] + offset[0],
-    //                                            startPointOfPattern[1] + offset[1]};
-    //                 //move ahead anf try to match recursively
-    //                 if (tryToMakeCaptureAndMatchPosition(board,
-    //                                                      captureList,
-    //                                                      startPosition,
-    //                                                      currentPosition,
-    //                                                      capturedPosition,
-    //                                                      finalPosition))
-    //                 {
-    //                     return true;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     //left-top
-    //     {
-    //         int offset[2] = {-1, 1};
-    //         //check if current offset isn't restrict
-    //         if (!hasRestrictedOffset || (offset[0] != restrictOffset[0] && offset[1] != restrictOffset[1]))
-    //         {
-    //             int startPointOfPattern[2];
-    //             //try to pattern that allows to capture figure by king
-    //             if (findFigureBlackDiagonalPattern(board,
-    //                                                offset,
-    //                                                startPosition,
-    //                                                startPointOfPattern))
-    //             {
-    //                 int currentPosition[2] = {startPosition[0] + offset[0] * 2,
-    //                                           startPosition[1] + offset[1] * 2};
-    //                 int capturedPosition[2] = {startPointOfPattern[0] + offset[0],
-    //                                            startPointOfPattern[1] + offset[1]};
-    //                 //move ahead anf try to match recursively
-    //                 if (tryToMakeCaptureAndMatchPosition(board,
-    //                                                      captureList,
-    //                                                      startPosition,
-    //                                                      currentPosition,
-    //                                                      capturedPosition,
-    //                                                      finalPosition))
-    //                 {
-    //                     return true;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     //left-bottom
-    //     {
-    //         int offset[2] = {-1, -1};
-    //         //check if current offset isn't restrict
-    //         if (!hasRestrictedOffset || (offset[0] != restrictOffset[0] && offset[1] != restrictOffset[1]))
-    //         {
-    //             int startPointOfPattern[2];
-    //             //try to pattern that allows to capture figure by king
-    //             if (findFigureBlackDiagonalPattern(board,
-    //                                                offset,
-    //                                                startPosition,
-    //                                                startPointOfPattern))
-    //             {
-    //                 int currentPosition[2] = {startPosition[0] + offset[0] * 2,
-    //                                           startPosition[1] + offset[1] * 2};
-    //                 int capturedPosition[2] = {startPointOfPattern[0] + offset[0],
-    //                                            startPointOfPattern[1] + offset[1]};
-    //                 //move ahead anf try to match recursively
-    //                 if (tryToMakeCaptureAndMatchPosition(board,
-    //                                                      captureList,
-    //                                                      startPosition,
-    //                                                      currentPosition,
-    //                                                      capturedPosition,
-    //                                                      finalPosition))
-    //                 {
-    //                     return true;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     //right-bottom
-    //     {
-    //         int offset[2] = {1, -1};
-    //         //check if current offset isn't restrict
-    //         if (!hasRestrictedOffset || (offset[0] != restrictOffset[0] && offset[1] != restrictOffset[1]))
-    //         {
-    //             int startPointOfPattern[2];
-    //             //try to pattern that allows to capture figure by king
-    //             if (findFigureBlackDiagonalPattern(board,
-    //                                                offset,
-    //                                                startPosition,
-    //                                                startPointOfPattern))
-    //             {
-    //                 int currentPosition[2] = {startPosition[0] + offset[0] * 2,
-    //                                           startPosition[1] + offset[1] * 2};
-    //                 int capturedPosition[2] = {startPointOfPattern[0] + offset[0],
-    //                                            startPointOfPattern[1] + offset[1]};
-    //                 //move ahead anf try to match recursively
-    //                 if (tryToMakeCaptureAndMatchPosition(board,
-    //                                                      captureList,
-    //                                                      startPosition,
-    //                                                      currentPosition,
-    //                                                      capturedPosition,
-    //                                                      finalPosition))
-    //                 {
-    //                     return true;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     //so we cant find captured piece, but for the kings we have to check condition
-    //     // when king capture piece and it can move forward and try to capture figures on dioganals
-    //     if (hasRestrictedOffset)
-    //     {
-    //         int currentPosition[2] = {startPosition[0] - restrictOffset[0] * 2,
-    //                                   startPosition[1] - restrictOffset[1] * 2};
-
-    //         //check if current field is valid
-    //         if (checkCoordinate(currentPosition)) return false;
-
-    //         //check if current field is empty
-    //         if(board[currentPosition[0], currentPosition[1]] == BLACK_EMPTY_FIELD)
-    //              {
-    //                 //try to capture diagonals
-
-    //                 //make board copy
-    //                 char currentBoard[8][8];
-    //                 copyBoard(currentBoard, board);
-
-    //                 if(findCaptureAndMatchPosition(currentBoard,
-    //                                             captureList,
-    //                                             const int startPosition[2],
-    //                                             const int finalPosition[2])
-    //              }
-    //     }
-    // }
-
-    return false;
-}
-
-bool checkMove(const char initialBoardStatus[8][8],
-               const int firstPosition[2],
-               const int finalPosition[2],
-               int *defietedEnemyPositions[2],
-               int *defietedEnemiesCount)
-{
-    //check if start and end positions is black fields
-    if (!checkCoordinate(firstPosition) || !checkCoordinate(firstPosition))
-        return false;
-    CaptureList *captureList = CreateCaptureList(firstPosition, NULL);
-    return findCaptureAndMatchPosition(initialBoardStatus,
-                                       captureList,
-                                       firstPosition,
-                                       finalPosition);
+        //add currentMoveThreeList to Move three list
+        SGLIB_LIST_ADD(MoveThreeList, *moveThreeList, currentMoveThreeList, next);
+    });
 }
 
 void resetBoard(char board[8][8])
