@@ -13,43 +13,49 @@ extern "C"
 #endif
 
     typedef void (*GenerateThePossibleMovesForPieceFunction)(const char initialBoardStatus[8][8],
-                                                              const int firstPosition[2],
-                                                              MoveThreeList **moveThreeList);
+                                                             const int startPosition[2],
+                                                             MoveThreeList **moveThreeList);
 
     typedef bool (*CheckMoveFunction)(const char initialBoardStatus[8][8],
-                                      const int firstPosition[2],
+                                      const int startPosition[2],
                                       const int finalPosition[2],
                                       GenerateThePossibleMovesForPieceFunction *generateThePossibleMovesForPieceFunction);
 
     //The function that finds all possible moves from current position for a checker
-    bool findPossiblePieceJumps(const char board[8][8], const int startPosition[2], MoveList **list);
+    void findPossiblePieceJumps(const char board[8][8], const int startPosition[2], MoveList **list);
 
     //The function that builds Move Three List for current piece
-    bool buildPieceJumpThreeList(const char board[8][8], const int startPosition[2], MoveThreeList **moveThreeList);
+    void generateJumpThreeForPiece(const char board[8][8], MoveThree *parentMoveThree);
+
+    //The function  that generates the move three for a piece
+    void generateMoveThreeForPiece(const char initialBoardStatus[8][8],
+                                   const int startPosition[2],
+                                   MoveThree *parentMoveThree);
 
     //The function that generates all the possible moves that can be
     //played up to a specified number of moves.
     void generateThePossibleMovesThree(const char initialBoardStatus[8][8],
-                                             const int playerColor,
-                                             GenerateThePossibleMovesForPieceFunction *generateThePossibleMovesForPieceFunction,
-                                             const int maximumDepthOfMuves);
+                                       const int playerColor,
+                                       GenerateThePossibleMovesForPieceFunction *generateThePossibleMovesForPieceFunction,
+                                       const int maximumDepthOfMuves);
+
+    //We try to find piece-empty Pattern for kings
+    bool findPieceEmptyDiagonalPattern(const char board[8][8],
+                                       const int offset[2],
+                                       const int startPosition[2],
+                                       int startPointOfPattern[2]);
 
     //The function that can determine if a move is valid
     bool checkMove(const char initialBoardStatus[8][8],
-                   const int firstPosition[2],
+                   const int startPosition[2],
                    const int finalPosition[2],
                    const GenerateThePossibleMovesForPieceFunction *generateThePossibleMovesForPieceFunction);
 
     //The function that can reset board state to inintial state
     void resetBoard(char board[8][8]);
 
-    //The function  that generates the possible moves for a piece
-    void generateThePossibleMovesForPiece(const char initialBoardStatus[8][8],
-                                          const int firstPosition[2],
-                                          MoveThreeList **moveThreeList);
-
     //build three of possible simple moves for the piece without jumps
-    bool buildPieceSimpleMoveList(const char board[8][8], const int startPosition[2], MoveThreeList **moveThreeList);
+    void buildNotJumpThreeForNotKingPiece(const char board[8][8], MoveThree *parentMoveThree);
 
 #ifdef __cplusplus
 }
