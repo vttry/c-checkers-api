@@ -2,12 +2,15 @@
 #define INCLUDED_CHECKERSGAMEAPI
 
 #include "GameThree.h"
+#include "Player.h"
+#include "Checker.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
+    //board list structure
     typedef struct BoardList
     {
         char board[8][8];
@@ -20,7 +23,7 @@ extern "C"
     typedef bool (*CheckMoveFunction)(const char initialBoardStatus[8][8],
                                       const int startPosition[2],
                                       const int finalPosition[2],
-                                      GenerateThePossibleMovesForPieceFunction *generateThePossibleMovesForPieceFunction);
+                                      const GenerateThePossibleMovesForPieceFunction *generateThePossibleMovesForPieceFunction);
 
     //The function that can determine if a move is valid
     bool checkMove(const char initialBoardStatus[8][8],
@@ -36,7 +39,7 @@ extern "C"
     //played up to a specified number of moves.
     GameThree *generateGameThree(const char initialBoardStatus[8][8],
                                  const int playerColor,
-                                 GenerateThePossibleMovesForPieceFunction generateThePossibleMovesForPieceFunction,
+                                 const GenerateThePossibleMovesForPieceFunction generateThePossibleMovesForPieceFunction,
                                  const int maximumDepthOfMuves);
 
     //The function that reset board to initial state

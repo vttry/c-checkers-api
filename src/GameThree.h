@@ -3,7 +3,8 @@
 
 typedef struct GameThree
 {
-    int board[8][8];
+    char board[8][8];
+    struct GameThreeList * children;
 } GameThree;
 
 typedef struct GameThreeList

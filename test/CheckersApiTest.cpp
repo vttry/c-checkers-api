@@ -99,3 +99,63 @@ TEST_CASE("CheckMove")
         REQUIRE(ret == false);
     }
 }
+
+TEST_CASE("Check Buid Game Three")
+{
+    {
+        char board[8][8] = {
+            //0    1    2    3    4    5    6    7
+            {'1', ' ', '1', ' ', '1', ' ', '1', ' '},  //0
+            {' ', '1', ' ', '1', ' ', '1', ' ', '1'},  //1
+            {'1', ' ', '1', ' ', '1', ' ', '1', ' '},  //2
+            {' ', '#', ' ', '#', ' ', '#', ' ', '#'},  //3
+            {'#', ' ', '#', ' ', '#', ' ', '#', ' '},  //4
+            {' ', '3', ' ', '3', ' ', '3', ' ', '3'},  //5
+            {'3', ' ', '3', ' ', '3', ' ', '3', ' '},  //6
+            {' ', '3', ' ', '3', ' ', '3', ' ', '3'}}; //7
+
+        struct GameThree *gameThree = generateGameThree(board, WHITE_PLAYER, generateThePossibleMovesForPiece, 1);
+
+        REQUIRE(gameThree);
+
+        GameThreeList *currentGameThreeList = NULL;
+        int count = 0;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct GameThreeList, gameThree->children, currentGameThreeList, next, {
+            count++;
+        });
+
+        REQUIRE(count == 7);
+    }
+
+    {
+        char board[8][8] = {
+            //0    1    2    3    4    5    6    7
+            {'#', ' ', '#', ' ', '#', ' ', '#', ' '},  //0
+            {' ', '1', ' ', '#', ' ', '#', ' ', '#'},  //1
+            {'#', ' ', '#', ' ', '#', ' ', '#', ' '},  //2
+            {' ', '#', ' ', '#', ' ', '#', ' ', '#'},  //3
+            {'#', ' ', '#', ' ', '#', ' ', '#', ' '},  //4
+            {' ', '3', ' ', '3', ' ', '3', ' ', '3'},  //5
+            {'3', ' ', '3', ' ', '3', ' ', '3', ' '},  //6
+            {' ', '3', ' ', '3', ' ', '3', ' ', '3'}}; //7
+
+        struct GameThree *gameThree = generateGameThree(board, WHITE_PLAYER, generateThePossibleMovesForPiece, 2);
+
+        REQUIRE(gameThree);
+
+        GameThreeList *currentGameThreeList = NULL;
+        int count = 0;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct GameThreeList, gameThree->children, currentGameThreeList, next, {
+            count++;
+        });
+        REQUIRE(count == 2);
+
+        //next move must have 7 moves
+        int nextCount = 0;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct GameThreeList, gameThree->children->gameThree.children, currentGameThreeList, next, {
+            nextCount++;
+        });
+
+        REQUIRE(nextCount == 7);
+    }
+}
