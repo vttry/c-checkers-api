@@ -71,7 +71,7 @@ static void copyPosition(int destination[2], const int position[2])
 }
 
 //Function that copy board state to destination
-static void copyBoard(char destinationBoard[8][8], const char originalBoard[8][8])
+void copyBoard(char destinationBoard[8][8], const char originalBoard[8][8])
 {
     for (int i = 0; i < 8; i++)
     {
