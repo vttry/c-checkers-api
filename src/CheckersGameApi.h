@@ -1,7 +1,11 @@
 #if !defined(INCLUDED_CHECKERSGAMEAPI)
 #define INCLUDED_CHECKERSGAMEAPI
 
-#include "GameThree.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#include "GameTree.h"
 #include "Player.h"
 #include "Checker.h"
 
@@ -37,7 +41,7 @@ extern "C"
 
     //The function that generates all the possible moves that can be
     //played up to a specified number of moves.
-    GameThree *generateGameThree(const char initialBoardStatus[8][8],
+    GameTree *generateGameTree(const char initialBoardStatus[8][8],
                                  const int playerColor,
                                  const GenerateThePossibleMovesForPieceFunction generateThePossibleMovesForPieceFunction,
                                  const int maximumDepthOfMuves);

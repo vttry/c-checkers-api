@@ -10,7 +10,7 @@ void resetBoardToInitialState(char board[8][8])
     resetBoard(board);
 }
 
-static void buildBoardList(const char currentBoard[8][8], BoardList **list, MoveThree *parentNode)
+static void buildBoardList(const char currentBoard[8][8], BoardList **list, MoveTree *parentNode)
 {
     //if we dont have children we just add currentBoard to list
     if (!parentNode->chidren)
@@ -23,41 +23,59 @@ static void buildBoardList(const char currentBoard[8][8], BoardList **list, Move
     }
 
     //we have to make changes on board using children nodes and recursively call current function
-    MoveThreeList *curentNode = NULL;
+    MoveTreeList *curentNode = NULL;
 
-    SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, parentNode->chidren, curentNode, next, {
+    // SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, parentNode->chidren, curentNode, next, {
+    //     char newBoard[8][8];
+    //     copyBoard(newBoard, currentBoard);
+    //     newBoard[parentNode->Move.finalPosition[0]][parentNode->Move.finalPosition[1]] = BLACK_EMPTY_FIELD;
+    //     newBoard[curentNode->moveTree.Move.finalPosition[0]][curentNode->moveTree.Move.finalPosition[1]] =
+    //         curentNode->moveTree.Move.finalStatus;
+    //     if (curentNode->moveTree.Move.isJump)
+    //     {
+    //         newBoard[curentNode->moveTree.Move.capturedPosition[0]][curentNode->moveTree.Move.capturedPosition[1]] =
+    //             BLACK_EMPTY_FIELD;
+    //     }
+    //     buildBoardList(newBoard, list, &curentNode->moveTree);
+    // });
+
+    curentNode = parentNode->chidren;
+    while (curentNode)
+    {
         char newBoard[8][8];
         copyBoard(newBoard, currentBoard);
         newBoard[parentNode->Move.finalPosition[0]][parentNode->Move.finalPosition[1]] = BLACK_EMPTY_FIELD;
-        newBoard[curentNode->moveThree.Move.finalPosition[0]][curentNode->moveThree.Move.finalPosition[1]] =
-            curentNode->moveThree.Move.finalStatus;
-        if (curentNode->moveThree.Move.isJump)
+        newBoard[curentNode->moveTree.Move.finalPosition[0]][curentNode->moveTree.Move.finalPosition[1]] =
+            curentNode->moveTree.Move.finalStatus;
+        if (curentNode->moveTree.Move.isJump)
         {
-            newBoard[curentNode->moveThree.Move.capturedPosition[0]][curentNode->moveThree.Move.capturedPosition[1]] =
+            newBoard[curentNode->moveTree.Move.capturedPosition[0]][curentNode->moveTree.Move.capturedPosition[1]] =
                 BLACK_EMPTY_FIELD;
         }
-        buildBoardList(newBoard, list, &curentNode->moveThree);
-    });
+        buildBoardList(newBoard, list, &curentNode->moveTree);
+        curentNode = curentNode->next;
+    }
+
 }
 
 BoardList *generateThePossibleMovesForPiece(const char initialBoardStatus[8][8],
                                             const int startPosition[2])
 {
-    MoveThree *moveThree = (MoveThree *)malloc(sizeof(MoveThree));
-    generateMoveThreeForPiece(initialBoardStatus, startPosition, moveThree);
-    if (!moveThree->chidren)
+    MoveTree *moveTree = (MoveTree *)malloc(sizeof(MoveTree));
+    generateMoveTreeForPiece(initialBoardStatus, startPosition, moveTree);
+    if (!moveTree->chidren)
     {
-        free(moveThree);
+        free(moveTree);
         return NULL;
     }
     BoardList *boardList = NULL;
 
-    //build moveThree
-    buildBoardList(initialBoardStatus, &boardList, moveThree);
+    //build moveTree
+    buildBoardList(initialBoardStatus, &boardList, moveTree);
 
     //free allocated memory
-    FreeMoveThreeList(moveThree->chidren);
-    free(moveThree);
+    FreeMoveTreeList(moveTree->chidren);
+    free(moveTree);
     return boardList;
 }
 
@@ -155,12 +173,12 @@ static int calculateKingsCount(const char board[8][8], const int playerColor)
     return kingsCount;
 }
 
-//build game three node, this function calls recursively
-static void buildGameThreeNode(const int currentdepthOfMuves,
+//build game tree node, this function calls recursively
+static void buildGameTreeNode(const int currentdepthOfMuves,
                                const int moveRemains,
                                const int playerColor,
                                const GenerateThePossibleMovesForPieceFunction generateThePossibleMovesForPieceFunction,
-                               GameThree *parentGameThree)
+                               GameTree *parentGameTree)
 {
     //check current depth
     if (currentdepthOfMuves == 0)
@@ -168,7 +186,7 @@ static void buildGameThreeNode(const int currentdepthOfMuves,
         return;
     }
 
-    int checkersCount = calculateCheckersCount(parentGameThree->board, playerColor);
+    int checkersCount = calculateCheckersCount(parentGameTree->board, playerColor);
 
     //check loose condition
     if (checkersCount == 0)
@@ -177,13 +195,13 @@ static void buildGameThreeNode(const int currentdepthOfMuves,
     }
 
     int enemyColor = playerColor == WHITE_PLAYER ? BLACK_PLAYER : WHITE_PLAYER;
-    int enemyCheckersCount = calculateCheckersCount(parentGameThree->board, enemyColor);
+    int enemyCheckersCount = calculateCheckersCount(parentGameTree->board, enemyColor);
 
     //check loose condition with kings
     if (moveRemains == 0 && checkersCount == 3 && enemyCheckersCount == 1)
     {
-        if (calculateKingsCount(parentGameThree->board, playerColor) == 3 ||
-            calculateKingsCount(parentGameThree->board, enemyColor) == 1)
+        if (calculateKingsCount(parentGameTree->board, playerColor) == 3 ||
+            calculateKingsCount(parentGameTree->board, enemyColor) == 1)
         {
             return;
         }
@@ -202,7 +220,7 @@ static void buildGameThreeNode(const int currentdepthOfMuves,
         {
             currentCoordinate[0] = i;
             currentCoordinate[1] = j * 2 + i % 2;
-            currentFigure = parentGameThree->board[currentCoordinate[0]][currentCoordinate[1]];
+            currentFigure = parentGameTree->board[currentCoordinate[0]][currentCoordinate[1]];
             if (
                 (playerColor == BLACK_PLAYER &&
                  (currentFigure == BLACK_CHECKER ||
@@ -212,7 +230,7 @@ static void buildGameThreeNode(const int currentdepthOfMuves,
                   currentFigure == WHITE_KING)))
             {
                 //get possible moves for current piece
-                BoardList *currentBoardList = generateThePossibleMovesForPieceFunction(parentGameThree->board, currentCoordinate);
+                BoardList *currentBoardList = generateThePossibleMovesForPieceFunction(parentGameTree->board, currentCoordinate);
 
                 if (!currentBoardList)
                     continue;
@@ -252,8 +270,8 @@ static void buildGameThreeNode(const int currentdepthOfMuves,
         //check loose condition with kings
         if (checkersCount == 3 && enemyCheckersCount == 1)
         {
-            if (calculateKingsCount(parentGameThree->board, playerColor) == 3 &&
-                calculateKingsCount(parentGameThree->board, enemyColor) == 1)
+            if (calculateKingsCount(parentGameTree->board, playerColor) == 3 &&
+                calculateKingsCount(parentGameTree->board, enemyColor) == 1)
             {
                 secondMoveRemains--;
             }
@@ -263,53 +281,53 @@ static void buildGameThreeNode(const int currentdepthOfMuves,
     //iterate over board list and create nodes recursively
     BoardList *currentBoardList = NULL;
     SGLIB_LIST_MAP_ON_ELEMENTS(struct BoardList, boardList, currentBoardList, next, {
-        GameThreeList *gameThreeList = (GameThreeList *)malloc(sizeof(GameThreeList));
-        copyBoard(gameThreeList->gameThree.board, currentBoardList->board);
-        gameThreeList->gameThree.children = NULL;
-        gameThreeList->next = NULL;
+        GameTreeList *gameTreeList = (GameTreeList *)malloc(sizeof(GameTreeList));
+        copyBoard(gameTreeList->gameTree.board, currentBoardList->board);
+        gameTreeList->gameTree.children = NULL;
+        gameTreeList->next = NULL;
 
         //free alloceted memory
         free(currentBoardList);
  
-        //add new node to parent gameThree
-        SGLIB_LIST_ADD(struct GameThreeList, parentGameThree->children, gameThreeList, next);
+        //add new node to parent gameTree
+        SGLIB_LIST_ADD(struct GameTreeList, parentGameTree->children, gameTreeList, next);
 
-        //build game Three
-        buildGameThreeNode(secondepthOfMuves,
+        //build game Tree
+        buildGameTreeNode(secondepthOfMuves,
                            secondMoveRemains,
                            enemyColor,
                            generateThePossibleMovesForPieceFunction,
-                           &gameThreeList->gameThree);
+                           &gameTreeList->gameTree);
     });
 }
 
-GameThree *generateGameThree(const char initialBoardStatus[8][8],
+GameTree *generateGameTree(const char initialBoardStatus[8][8],
                              const int playerColor,
                              const GenerateThePossibleMovesForPieceFunction generateThePossibleMovesForPieceFunction,
                              const int maximumDepthOfMuves)
 {
-    //we allocate memory for first gameThreeNode
-    GameThree *gameThree = (GameThree *)malloc(sizeof(GameThree));
-    copyBoard(gameThree->board, initialBoardStatus);
-    gameThree->children = NULL;
+    //we allocate memory for first gameTreeNode
+    GameTree *gameTree = (GameTree *)malloc(sizeof(GameTree));
+    copyBoard(gameTree->board, initialBoardStatus);
+    gameTree->children = NULL;
 
     // set move remains count for 3x1 king lose condition
     int moveRemains = 15;
 
-    //build game Three
-    buildGameThreeNode(maximumDepthOfMuves,
+    //build game Tree
+    buildGameTreeNode(maximumDepthOfMuves,
                        moveRemains,
                        playerColor,
                        generateThePossibleMovesForPieceFunction,
-                       gameThree);
+                       gameTree);
 
-    if (gameThree->children)
+    if (gameTree->children)
     {
-        return gameThree;
+        return gameTree;
     }
     else
     {
-        free(gameThree);
+        free(gameTree);
         return NULL;
     }
 }

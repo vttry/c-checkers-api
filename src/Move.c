@@ -3,11 +3,11 @@
 #include <sglib.h>
 #include "Move.h"
 
-void FreeMoveThreeList(MoveThreeList *moveThreeList)
+void FreeMoveTreeList(MoveTreeList *moveTreeList)
 {
-    MoveThreeList *currentItem = NULL;
-    SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, moveThreeList, currentItem, next, {
-        FreeMoveThreeList(currentItem->moveThree.chidren);
+    MoveTreeList *currentItem = NULL;
+    SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, moveTreeList, currentItem, next, {
+        FreeMoveTreeList(currentItem->moveTree.chidren);
         free(currentItem);
     });
 }

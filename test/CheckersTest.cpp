@@ -109,17 +109,17 @@ TEST_CASE("Check Jumps Treelist building")
     {
         int startPosition[2] = {4, 4};
 
-        MoveThree jumpThree;
-        jumpThree.chidren = NULL;
-        jumpThree.parent = NULL;
-        jumpThree.Move.finalPosition[0] = startPosition[0];
-        jumpThree.Move.finalPosition[1] = startPosition[1];
-        jumpThree.Move.isJump = false;
+        MoveTree jumpTree;
+        jumpTree.chidren = NULL;
+        jumpTree.parent = NULL;
+        jumpTree.Move.finalPosition[0] = startPosition[0];
+        jumpTree.Move.finalPosition[1] = startPosition[1];
+        jumpTree.Move.isJump = false;
 
-        generateJumpThreeForPiece(board, &jumpThree);
+        generateJumpTreeForPiece(board, &jumpTree);
         int count = 0;
-        MoveThreeList *currentItem = NULL;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, jumpThree.chidren, currentItem, next, {
+        MoveTreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, jumpTree.chidren, currentItem, next, {
             count++;
             free(currentItem);
         });
@@ -130,15 +130,15 @@ TEST_CASE("Check Jumps Treelist building")
     {
         int startPosition[2] = {5, 3};
 
-        MoveThree jumpThree;
-        jumpThree.chidren = NULL;
-        jumpThree.parent = NULL;
-        jumpThree.Move.finalPosition[0] = startPosition[0];
-        jumpThree.Move.finalPosition[1] = startPosition[1];
-        generateJumpThreeForPiece(board, &jumpThree);
+        MoveTree jumpTree;
+        jumpTree.chidren = NULL;
+        jumpTree.parent = NULL;
+        jumpTree.Move.finalPosition[0] = startPosition[0];
+        jumpTree.Move.finalPosition[1] = startPosition[1];
+        generateJumpTreeForPiece(board, &jumpTree);
         int count = 0;
-        MoveThreeList *currentItem = NULL;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, jumpThree.chidren, currentItem, next, {
+        MoveTreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, jumpTree.chidren, currentItem, next, {
             count++;
             free(currentItem);
         });
@@ -161,15 +161,15 @@ TEST_CASE("Check simple moves Treelist building")
     {
         int startPosition[2] = {0, 0};
 
-        MoveThree jumpThree;
-        jumpThree.chidren = NULL;
-        jumpThree.parent = NULL;
-        jumpThree.Move.finalPosition[0] = startPosition[0];
-        jumpThree.Move.finalPosition[1] = startPosition[1];
-        buildNotJumpThreeForNotKingPiece(board, &jumpThree);
+        MoveTree jumpTree;
+        jumpTree.chidren = NULL;
+        jumpTree.parent = NULL;
+        jumpTree.Move.finalPosition[0] = startPosition[0];
+        jumpTree.Move.finalPosition[1] = startPosition[1];
+        buildNotJumpTreeForNotKingPiece(board, &jumpTree);
         int count = 0;
-        MoveThreeList *currentItem = NULL;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, jumpThree.chidren, currentItem, next, {
+        MoveTreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, jumpTree.chidren, currentItem, next, {
             count++;
             free(currentItem);
         });
@@ -180,15 +180,15 @@ TEST_CASE("Check simple moves Treelist building")
     {
         int startPosition[2] = {2, 0};
 
-        MoveThree jumpThree;
-        jumpThree.chidren = NULL;
-        jumpThree.parent = NULL;
-        jumpThree.Move.finalPosition[0] = startPosition[0];
-        jumpThree.Move.finalPosition[1] = startPosition[1];
-        buildNotJumpThreeForNotKingPiece(board, &jumpThree);
+        MoveTree jumpTree;
+        jumpTree.chidren = NULL;
+        jumpTree.parent = NULL;
+        jumpTree.Move.finalPosition[0] = startPosition[0];
+        jumpTree.Move.finalPosition[1] = startPosition[1];
+        buildNotJumpTreeForNotKingPiece(board, &jumpTree);
         int count = 0;
-        MoveThreeList *currentItem = NULL;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, jumpThree.chidren, currentItem, next, {
+        MoveTreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, jumpTree.chidren, currentItem, next, {
             count++;
             free(currentItem);
         });
@@ -199,15 +199,15 @@ TEST_CASE("Check simple moves Treelist building")
     {
         int startPosition[2] = {4, 4};
 
-        MoveThree jumpThree;
-        jumpThree.chidren = NULL;
-        jumpThree.parent = NULL;
-        jumpThree.Move.finalPosition[0] = startPosition[0];
-        jumpThree.Move.finalPosition[1] = startPosition[1];
-        buildNotJumpThreeForNotKingPiece(board, &jumpThree);
+        MoveTree jumpTree;
+        jumpTree.chidren = NULL;
+        jumpTree.parent = NULL;
+        jumpTree.Move.finalPosition[0] = startPosition[0];
+        jumpTree.Move.finalPosition[1] = startPosition[1];
+        buildNotJumpTreeForNotKingPiece(board, &jumpTree);
         int count = 0;
-        MoveThreeList *currentItem = NULL;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, jumpThree.chidren, currentItem, next, {
+        MoveTreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, jumpTree.chidren, currentItem, next, {
             count++;
             free(currentItem);
         });
@@ -272,42 +272,42 @@ TEST_CASE("Generate possible moves for Kings without jumps")
     {
         int startPosition[2] = {6, 0};
 
-        MoveThree moveThree;
-        generateMoveThreeForPiece(board, startPosition, &moveThree);
+        MoveTree moveTree;
+        generateMoveTreeForPiece(board, startPosition, &moveTree);
         int count = 0;
-        MoveThreeList *currentItem = NULL;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, moveThree.chidren, currentItem, next, {
+        MoveTreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, moveTree.chidren, currentItem, next, {
             count++;
         });
-        FreeMoveThreeList(currentItem);
+        FreeMoveTreeList(currentItem);
         REQUIRE(count == 4);
     }
 
     {
         int startPosition[2] = {7, 5};
 
-        MoveThree moveThree;
-        generateMoveThreeForPiece(board, startPosition, &moveThree);
+        MoveTree moveTree;
+        generateMoveTreeForPiece(board, startPosition, &moveTree);
         int count = 0;
-        MoveThreeList *currentItem = NULL;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, moveThree.chidren, currentItem, next, {
+        MoveTreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, moveTree.chidren, currentItem, next, {
             count++;
         });
-        FreeMoveThreeList(currentItem);
+        FreeMoveTreeList(currentItem);
         REQUIRE(count == 1);
     }
 
     {
         int startPosition[2] = {4, 4};
 
-        MoveThree moveThree;
-        generateMoveThreeForPiece(board, startPosition, &moveThree);
+        MoveTree moveTree;
+        generateMoveTreeForPiece(board, startPosition, &moveTree);
         int count = 0;
-        MoveThreeList *currentItem = NULL;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, moveThree.chidren, currentItem, next, {
+        MoveTreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, moveTree.chidren, currentItem, next, {
             count++;
         });
-        FreeMoveThreeList(currentItem);
+        FreeMoveTreeList(currentItem);
         REQUIRE(count == 7);
     }
 }
@@ -327,31 +327,31 @@ TEST_CASE("Generate possible moves with jumps")
     {
         int startPosition[2] = {2, 0};
 
-        MoveThree moveThree;
-        generateMoveThreeForPiece(board, startPosition, &moveThree);
+        MoveTree moveTree;
+        generateMoveTreeForPiece(board, startPosition, &moveTree);
         int count = 0;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, moveThree.chidren, currentItem, next, {
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, moveTree.chidren, currentItem, next, {
             count++;
         });
         REQUIRE(count == 1);
-        REQUIRE(moveThree.chidren);
-        REQUIRE(moveThree.chidren->moveThree.chidren->moveThree.chidren == NULL);
-        REQUIRE(moveThree.chidren->moveThree.chidren->moveThree.Move.finalPosition[0] == 3);
-        REQUIRE(moveThree.chidren->moveThree.chidren->moveThree.Move.finalPosition[1] == 5);
+        REQUIRE(moveTree.chidren);
+        REQUIRE(moveTree.chidren->moveTree.chidren->moveTree.chidren == NULL);
+        REQUIRE(moveTree.chidren->moveTree.chidren->moveTree.Move.finalPosition[0] == 3);
+        REQUIRE(moveTree.chidren->moveTree.chidren->moveTree.Move.finalPosition[1] == 5);
         
     }
 
     {
         int startPosition[2] = {6, 4};
 
-        MoveThree moveThree;
-        generateMoveThreeForPiece(board, startPosition, &moveThree);
+        MoveTree moveTree;
+        generateMoveTreeForPiece(board, startPosition, &moveTree);
         int count = 0;
-        MoveThreeList *currentItem = NULL;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveThreeList, moveThree.chidren, currentItem, next, {
+        MoveTreeList *currentItem = NULL;
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, moveTree.chidren, currentItem, next, {
             count++;
         });
-        FreeMoveThreeList(currentItem);
+        FreeMoveTreeList(currentItem);
         REQUIRE(count == 3);
     }
 }

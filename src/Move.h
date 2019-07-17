@@ -22,20 +22,20 @@ extern "C"
         struct MoveList *next;
     } MoveList;
 
-    typedef struct MoveThree
+    typedef struct MoveTree
     {
-        struct MoveThree *parent;
+        struct MoveTree *parent;
         Move Move;
-        struct MoveThreeList *chidren;
-    } MoveThree;
+        struct MoveTreeList *chidren;
+    } MoveTree;
 
-    typedef struct MoveThreeList
+    typedef struct MoveTreeList
     {
-        MoveThree moveThree;
-        struct MoveThreeList *next;
-    } MoveThreeList;
+        MoveTree moveTree;
+        struct MoveTreeList *next;
+    } MoveTreeList;
 
-    void FreeMoveThreeList(MoveThreeList *moveThreeList);
+    void FreeMoveTreeList(MoveTreeList *moveTreeList);
 
 #ifdef __cplusplus
 }

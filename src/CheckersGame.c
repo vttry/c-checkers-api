@@ -349,10 +349,10 @@ void findPossibleKingFirstJumps(const char board[8][8], const int startPosition[
     }
 }
 
-//build three of possible jumps for the checker
-void generateJumpThreeForPiece(const char board[8][8], MoveThree *parentMoveThree)
+//build tree of possible jumps for the checker
+void generateJumpTreeForPiece(const char board[8][8], MoveTree *parentMoveTree)
 {
-    int *startPosition = parentMoveThree->Move.finalPosition;
+    int *startPosition = parentMoveTree->Move.finalPosition;
     //check if current piece is not king
     if (getPieceByPosition(board, startPosition) == BLACK_CHECKER ||
         getPieceByPosition(board, startPosition) == WHITE_CHECKER)
@@ -361,17 +361,17 @@ void generateJumpThreeForPiece(const char board[8][8], MoveThree *parentMoveThre
         MoveList *currentMove = NULL;
         findPossiblePieceJumps(board, startPosition, &currentMoveList);
 
-        //recursively call buildCheckerMoveThreeList for all finded Move
+        //recursively call buildCheckerMoveTreeList for all finded Move
         SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveList, currentMoveList, currentMove, next, {
             //alloc memory for new node and set current Move
-            MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-            copyPosition(currentMoveThreeList->moveThree.Move.capturedPosition, currentMove->Move.capturedPosition);
-            copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, currentMove->Move.finalPosition);
-            currentMoveThreeList->moveThree.Move.finalStatus = currentMove->Move.finalStatus;
-            currentMoveThreeList->moveThree.Move.isJump = true;
-            currentMoveThreeList->moveThree.chidren = NULL;
-            currentMoveThreeList->moveThree.parent = parentMoveThree;
-            currentMoveThreeList->next = NULL;
+            MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+            copyPosition(currentMoveTreeList->moveTree.Move.capturedPosition, currentMove->Move.capturedPosition);
+            copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, currentMove->Move.finalPosition);
+            currentMoveTreeList->moveTree.Move.finalStatus = currentMove->Move.finalStatus;
+            currentMoveTreeList->moveTree.Move.isJump = true;
+            currentMoveTreeList->moveTree.chidren = NULL;
+            currentMoveTreeList->moveTree.parent = parentMoveTree;
+            currentMoveTreeList->next = NULL;
 
             //free currentMove
             free(currentMove);
@@ -381,15 +381,15 @@ void generateJumpThreeForPiece(const char board[8][8], MoveThree *parentMoveThre
             copyBoard(currentBoard, board);
 
             //make swap
-            setPieceByTypeAndPosition(currentBoard, currentMoveThreeList->moveThree.Move.finalStatus, currentMoveThreeList->moveThree.Move.finalPosition);
+            setPieceByTypeAndPosition(currentBoard, currentMoveTreeList->moveTree.Move.finalStatus, currentMoveTreeList->moveTree.Move.finalPosition);
             setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, startPosition);
-            setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, currentMoveThreeList->moveThree.Move.capturedPosition);
+            setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, currentMoveTreeList->moveTree.Move.capturedPosition);
 
             //call recursively to fill children nodes;
-            generateJumpThreeForPiece(currentBoard, &currentMoveThreeList->moveThree);
+            generateJumpTreeForPiece(currentBoard, &currentMoveTreeList->moveTree);
 
-            //add currentMoveThreeList to parent Move three list
-            SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+            //add currentMoveTreeList to parent Move tree list
+            SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
         });
 
     }    //check if current piece is not king
@@ -408,29 +408,29 @@ void generateJumpThreeForPiece(const char board[8][8], MoveThree *parentMoveThre
         //until second field of (direct path) isn't empty
         //then we have to check if last field is figure and second is empty
         //if yes, we recursively call current method for last field
-        //after all we should check if we have jump series we only add jump series to moveThreeList
-        //if not we modify last node moveThreeList
+        //after all we should check if we have jump series we only add jump series to moveTreeList
+        //if not we modify last node moveTreeList
 
         //check if it first Jump
-        if (!parentMoveThree->parent)
+        if (!parentMoveTree->parent)
         {
 
             MoveList *currentMoveList = NULL;
             MoveList *currentMove = NULL;
             findPossibleKingFirstJumps(board, startPosition, &currentMoveList);
 
-            //recursively call buildCheckerMoveThreeList for all finded Move
+            //recursively call buildCheckerMoveTreeList for all finded Move
             SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveList, currentMoveList, currentMove, next, {
                 //alloc memory for new node and set current Move
-                MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-                currentMoveThreeList->moveThree.Move = currentMove->Move;
-                copyPosition(currentMoveThreeList->moveThree.Move.capturedPosition, currentMove->Move.capturedPosition);
-                copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, currentMove->Move.finalPosition);
-                currentMoveThreeList->moveThree.Move.finalStatus = currentMove->Move.finalStatus;
-                currentMoveThreeList->moveThree.parent = parentMoveThree;
-                currentMoveThreeList->moveThree.Move.isJump = true;
-                currentMoveThreeList->moveThree.chidren = NULL;
-                currentMoveThreeList->next = NULL;
+                MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+                
+                copyPosition(currentMoveTreeList->moveTree.Move.capturedPosition, currentMove->Move.capturedPosition);
+                copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, currentMove->Move.finalPosition);
+                currentMoveTreeList->moveTree.Move.finalStatus = currentMove->Move.finalStatus;
+                currentMoveTreeList->moveTree.parent = parentMoveTree;
+                currentMoveTreeList->moveTree.Move.isJump = true;
+                currentMoveTreeList->moveTree.chidren = NULL;
+                currentMoveTreeList->next = NULL;
 
                 //free currentMove
                 free(currentMove);
@@ -440,38 +440,38 @@ void generateJumpThreeForPiece(const char board[8][8], MoveThree *parentMoveThre
                 copyBoard(currentBoard, board);
 
                 //make swap
-                setPieceByTypeAndPosition(currentBoard, currentMoveThreeList->moveThree.Move.finalStatus, currentMoveThreeList->moveThree.Move.finalPosition);
+                setPieceByTypeAndPosition(currentBoard, currentMoveTreeList->moveTree.Move.finalStatus, currentMoveTreeList->moveTree.Move.finalPosition);
                 setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, startPosition);
-                setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, currentMoveThreeList->moveThree.Move.capturedPosition);
+                setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, currentMoveTreeList->moveTree.Move.capturedPosition);
 
                 //call recursively to fill children nodes;
-                generateJumpThreeForPiece(currentBoard, &currentMoveThreeList->moveThree);
+                generateJumpTreeForPiece(currentBoard, &currentMoveTreeList->moveTree);
 
-                //add currentMoveThreeList to parent Move three list
-                SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+                //add currentMoveTreeList to parent Move tree list
+                SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
             });
         } //check if it first Jump
         else
         {
             int offset[2];
-            getOffset(parentMoveThree->parent->Move.finalPosition, parentMoveThree->Move.finalPosition, offset);
+            getOffset(parentMoveTree->parent->Move.finalPosition, parentMoveTree->Move.finalPosition, offset);
             //second jump
             MoveList *currentMoveList = NULL;
             MoveList *currentMove = NULL;
             findPossibleSecondKingJumps(board, startPosition, offset, &currentMoveList);
 
-            //recursively call buildCheckerMoveThreeList for all finded Move
+            //recursively call buildCheckerMoveTreeList for all finded Move
             SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveList, currentMoveList, currentMove, next, {
                 //alloc memory for new node and set current Move
-                MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-                currentMoveThreeList->moveThree.Move = currentMove->Move;
-                copyPosition(currentMoveThreeList->moveThree.Move.capturedPosition, currentMove->Move.capturedPosition);
-                copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, currentMove->Move.finalPosition);
-                currentMoveThreeList->moveThree.Move.finalStatus = currentMove->Move.finalStatus;
-                currentMoveThreeList->moveThree.parent = parentMoveThree;
-                currentMoveThreeList->moveThree.Move.isJump = true;
-                currentMoveThreeList->moveThree.chidren = NULL;
-                currentMoveThreeList->next = NULL;
+                MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+              
+                copyPosition(currentMoveTreeList->moveTree.Move.capturedPosition, currentMove->Move.capturedPosition);
+                copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, currentMove->Move.finalPosition);
+                currentMoveTreeList->moveTree.Move.finalStatus = currentMove->Move.finalStatus;
+                currentMoveTreeList->moveTree.parent = parentMoveTree;
+                currentMoveTreeList->moveTree.Move.isJump = true;
+                currentMoveTreeList->moveTree.chidren = NULL;
+                currentMoveTreeList->next = NULL;
 
                 //free currentMove
                 free(currentMove);
@@ -481,15 +481,15 @@ void generateJumpThreeForPiece(const char board[8][8], MoveThree *parentMoveThre
                 copyBoard(currentBoard, board);
 
                 //make swap
-                setPieceByTypeAndPosition(currentBoard, currentMoveThreeList->moveThree.Move.finalStatus, currentMoveThreeList->moveThree.Move.finalPosition);
+                setPieceByTypeAndPosition(currentBoard, currentMoveTreeList->moveTree.Move.finalStatus, currentMoveTreeList->moveTree.Move.finalPosition);
                 setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, startPosition);
-                setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, currentMoveThreeList->moveThree.Move.capturedPosition);
+                setPieceByTypeAndPosition(currentBoard, BLACK_EMPTY_FIELD, currentMoveTreeList->moveTree.Move.capturedPosition);
 
                 //call recursively to fill children nodes;
-                generateJumpThreeForPiece(currentBoard, &currentMoveThreeList->moveThree);
+                generateJumpTreeForPiece(currentBoard, &currentMoveTreeList->moveTree);
 
-                //add currentMoveThreeList to parent Move three list
-                SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+                //add currentMoveTreeList to parent Move tree list
+                SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
             });
 
             //if we don't have jumps build just move forvard possibilities
@@ -504,20 +504,20 @@ void generateJumpThreeForPiece(const char board[8][8], MoveThree *parentMoveThre
                 while (checkCoordinate(currentOffsetPosition) && getPieceByPosition(board, currentOffsetPosition) == BLACK_EMPTY_FIELD)
                 {
                     //alloc memory for new node and set current Move
-                    MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
+                    MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
                 
-                    copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, currentOffsetPosition);
-                    currentMoveThreeList->moveThree.Move.finalStatus = parentMoveThree->Move.finalStatus;
-                    currentMoveThreeList->moveThree.Move.isJump = true;
-                    currentMoveThreeList->moveThree.parent = parentMoveThree->parent;
-                    currentMoveThreeList->moveThree.chidren = NULL;
-                    currentMoveThreeList->next = NULL;
+                    copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, currentOffsetPosition);
+                    currentMoveTreeList->moveTree.Move.finalStatus = parentMoveTree->Move.finalStatus;
+                    currentMoveTreeList->moveTree.Move.isJump = false;
+                    currentMoveTreeList->moveTree.parent = parentMoveTree->parent;
+                    currentMoveTreeList->moveTree.chidren = NULL;
+                    currentMoveTreeList->next = NULL;
 
                     //free currentMove
                     free(currentMove);
 
-                    //add currentMoveThreeList to Move three list
-                    SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->parent->chidren, currentMoveThreeList, next);
+                    //add currentMoveTreeList to Move tree list
+                    SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->parent->chidren, currentMoveTreeList, next);
 
                     //find offset
                     currentOffsetPosition[0] += offset[0];
@@ -528,10 +528,10 @@ void generateJumpThreeForPiece(const char board[8][8], MoveThree *parentMoveThre
     }
 }
 
-//build three of possible simple moves for the piece without jumps
-void buildNotJumpThreeForNotKingPiece(const char board[8][8], MoveThree *parentMoveThree)
+//build tree of possible simple moves for the piece without jumps
+void buildNotJumpTreeForNotKingPiece(const char board[8][8], MoveTree *parentMoveTree)
 {
-    int *startPosition = parentMoveThree->Move.finalPosition;
+    int *startPosition = parentMoveTree->Move.finalPosition;
 
     //first is right-top it is only for white piece
     {
@@ -542,13 +542,13 @@ void buildNotJumpThreeForNotKingPiece(const char board[8][8], MoveThree *parentM
             !isBlackPiece(getPieceByPosition(board, startPosition)) &&
             getPieceByPosition(board, finalPosition) == BLACK_EMPTY_FIELD)
         {
-            MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-            copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, finalPosition);
-            currentMoveThreeList->moveThree.Move.finalStatus = getFinalStatus(getPieceByPosition(board, finalPosition), finalPosition);
-            currentMoveThreeList->moveThree.Move.isJump = false;
-            currentMoveThreeList->moveThree.chidren = NULL;
-            currentMoveThreeList->next = NULL;
-            SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+            MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+            copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, finalPosition);
+            currentMoveTreeList->moveTree.Move.finalStatus = getFinalStatus(getPieceByPosition(board, startPosition), finalPosition);
+            currentMoveTreeList->moveTree.Move.isJump = false;
+            currentMoveTreeList->moveTree.chidren = NULL;
+            currentMoveTreeList->next = NULL;
+            SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
         }
     }
 
@@ -561,13 +561,13 @@ void buildNotJumpThreeForNotKingPiece(const char board[8][8], MoveThree *parentM
             !isBlackPiece(getPieceByPosition(board, startPosition)) &&
             getPieceByPosition(board, finalPosition) == BLACK_EMPTY_FIELD)
         {
-            MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-            copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, finalPosition);
-            currentMoveThreeList->moveThree.Move.finalStatus = getFinalStatus(getPieceByPosition(board, finalPosition), finalPosition);
-            currentMoveThreeList->moveThree.Move.isJump = false;
-            currentMoveThreeList->moveThree.chidren = NULL;
-            currentMoveThreeList->next = NULL;
-            SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+            MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+            copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, finalPosition);
+            currentMoveTreeList->moveTree.Move.finalStatus = getFinalStatus(getPieceByPosition(board, startPosition), finalPosition);
+            currentMoveTreeList->moveTree.Move.isJump = false;
+            currentMoveTreeList->moveTree.chidren = NULL;
+            currentMoveTreeList->next = NULL;
+            SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
         }
     }
 
@@ -580,13 +580,13 @@ void buildNotJumpThreeForNotKingPiece(const char board[8][8], MoveThree *parentM
             isBlackPiece(getPieceByPosition(board, startPosition)) &&
             getPieceByPosition(board, finalPosition) == BLACK_EMPTY_FIELD)
         {
-            MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-            copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, finalPosition);
-            currentMoveThreeList->moveThree.Move.finalStatus = getFinalStatus(getPieceByPosition(board, finalPosition), finalPosition);
-            currentMoveThreeList->moveThree.Move.isJump = false;
-            currentMoveThreeList->moveThree.chidren = NULL;
-            currentMoveThreeList->next = NULL;
-            SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+            MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+            copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, finalPosition);
+            currentMoveTreeList->moveTree.Move.finalStatus = getFinalStatus(getPieceByPosition(board, startPosition), finalPosition);
+            currentMoveTreeList->moveTree.Move.isJump = false;
+            currentMoveTreeList->moveTree.chidren = NULL;
+            currentMoveTreeList->next = NULL;
+            SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
         }
     }
 
@@ -599,21 +599,21 @@ void buildNotJumpThreeForNotKingPiece(const char board[8][8], MoveThree *parentM
             isBlackPiece(getPieceByPosition(board, startPosition)) &&
             getPieceByPosition(board, finalPosition) == BLACK_EMPTY_FIELD)
         {
-            MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-            copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, finalPosition);
-            currentMoveThreeList->moveThree.Move.finalStatus = getFinalStatus(getPieceByPosition(board, finalPosition), finalPosition);
-            currentMoveThreeList->moveThree.Move.isJump = false;
-            currentMoveThreeList->moveThree.chidren = NULL;
-            currentMoveThreeList->next = NULL;
-            SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+            MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+            copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, finalPosition);
+            currentMoveTreeList->moveTree.Move.finalStatus = getFinalStatus(getPieceByPosition(board, startPosition), finalPosition);
+            currentMoveTreeList->moveTree.Move.isJump = false;
+            currentMoveTreeList->moveTree.chidren = NULL;
+            currentMoveTreeList->next = NULL;
+            SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
         }
     }
 }
 
-//build three of possible simple moves for the Kings without jumps
-void buildNotJumpThreeForKingPiece(const char board[8][8], MoveThree *parentMoveThree)
+//build tree of possible simple moves for the Kings without jumps
+void buildNotJumpTreeForKingPiece(const char board[8][8], MoveTree *parentMoveTree)
 {
-    int *startPosition = parentMoveThree->Move.finalPosition;
+    int *startPosition = parentMoveTree->Move.finalPosition;
 
     //first is right-top it is only for white piece
     {
@@ -626,15 +626,15 @@ void buildNotJumpThreeForKingPiece(const char board[8][8], MoveThree *parentMove
         while (checkCoordinate(currentOffsetPosition) && getPieceByPosition(board, currentOffsetPosition) == BLACK_EMPTY_FIELD)
         {
             //alloc memory for new node and set current Data
-            MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-            copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, currentOffsetPosition);
-            currentMoveThreeList->moveThree.Move.finalStatus = BLACK_KING;
-            currentMoveThreeList->moveThree.Move.isJump = false;
-            currentMoveThreeList->moveThree.chidren = NULL;
-            currentMoveThreeList->next = NULL;
+            MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+            copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, currentOffsetPosition);
+            currentMoveTreeList->moveTree.Move.finalStatus = BLACK_KING;
+            currentMoveTreeList->moveTree.Move.isJump = false;
+            currentMoveTreeList->moveTree.chidren = NULL;
+            currentMoveTreeList->next = NULL;
 
-            //add currentMoveThreeList to Move three list
-            SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+            //add currentMoveTreeList to Move tree list
+            SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
 
             //find offset
             currentOffsetPosition[0] += offset[0];
@@ -653,15 +653,15 @@ void buildNotJumpThreeForKingPiece(const char board[8][8], MoveThree *parentMove
         while (checkCoordinate(currentOffsetPosition) && getPieceByPosition(board, currentOffsetPosition) == BLACK_EMPTY_FIELD)
         {
             //alloc memory for new node and set current Data
-            MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-            copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, currentOffsetPosition);
-            currentMoveThreeList->moveThree.Move.finalStatus = BLACK_KING;
-            currentMoveThreeList->moveThree.Move.isJump = false;
-            currentMoveThreeList->moveThree.chidren = NULL;
-            currentMoveThreeList->next = NULL;
+            MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+            copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, currentOffsetPosition);
+            currentMoveTreeList->moveTree.Move.finalStatus = BLACK_KING;
+            currentMoveTreeList->moveTree.Move.isJump = false;
+            currentMoveTreeList->moveTree.chidren = NULL;
+            currentMoveTreeList->next = NULL;
 
-            //add currentMoveThreeList to Move three list
-            SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+            //add currentMoveTreeList to Move tree list
+            SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
 
             //find offset
             currentOffsetPosition[0] += offset[0];
@@ -680,15 +680,15 @@ void buildNotJumpThreeForKingPiece(const char board[8][8], MoveThree *parentMove
         while (checkCoordinate(currentOffsetPosition) && getPieceByPosition(board, currentOffsetPosition) == BLACK_EMPTY_FIELD)
         {
             //alloc memory for new node and set current Data
-            MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-            copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, currentOffsetPosition);
-            currentMoveThreeList->moveThree.Move.finalStatus = BLACK_KING;
-            currentMoveThreeList->moveThree.Move.isJump = false;
-            currentMoveThreeList->moveThree.chidren = NULL;
-            currentMoveThreeList->next = NULL;
+            MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+            copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, currentOffsetPosition);
+            currentMoveTreeList->moveTree.Move.finalStatus = BLACK_KING;
+            currentMoveTreeList->moveTree.Move.isJump = false;
+            currentMoveTreeList->moveTree.chidren = NULL;
+            currentMoveTreeList->next = NULL;
 
-            //add currentMoveThreeList to Move three list
-            SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+            //add currentMoveTreeList to Move tree list
+            SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
 
             //find offset
             currentOffsetPosition[0] += offset[0];
@@ -706,15 +706,15 @@ void buildNotJumpThreeForKingPiece(const char board[8][8], MoveThree *parentMove
         while (checkCoordinate(currentOffsetPosition) && getPieceByPosition(board, currentOffsetPosition) == BLACK_EMPTY_FIELD)
         {
             //alloc memory for new node and set current Data
-            MoveThreeList *currentMoveThreeList = (MoveThreeList *)malloc(sizeof(MoveThreeList));
-            copyPosition(currentMoveThreeList->moveThree.Move.finalPosition, currentOffsetPosition);
-            currentMoveThreeList->moveThree.Move.finalStatus = BLACK_KING;
-            currentMoveThreeList->moveThree.Move.isJump = false;
-            currentMoveThreeList->moveThree.chidren = NULL;
-            currentMoveThreeList->next = NULL;
+            MoveTreeList *currentMoveTreeList = (MoveTreeList *)malloc(sizeof(MoveTreeList));
+            copyPosition(currentMoveTreeList->moveTree.Move.finalPosition, currentOffsetPosition);
+            currentMoveTreeList->moveTree.Move.finalStatus = BLACK_KING;
+            currentMoveTreeList->moveTree.Move.isJump = false;
+            currentMoveTreeList->moveTree.chidren = NULL;
+            currentMoveTreeList->next = NULL;
 
-            //add currentMoveThreeList to Move three list
-            SGLIB_LIST_ADD(MoveThreeList, parentMoveThree->chidren, currentMoveThreeList, next);
+            //add currentMoveTreeList to Move tree list
+            SGLIB_LIST_ADD(MoveTreeList, parentMoveTree->chidren, currentMoveTreeList, next);
 
             //find offset
             currentOffsetPosition[0] += offset[0];
@@ -723,32 +723,32 @@ void buildNotJumpThreeForKingPiece(const char board[8][8], MoveThree *parentMove
     }
 }
 
-void generateMoveThreeForPiece(const char initialBoardStatus[8][8],
+void generateMoveTreeForPiece(const char initialBoardStatus[8][8],
                                const int startPosition[2],
-                               MoveThree *parentMoveThree)
+                               MoveTree *parentMoveTree)
 {
-    //set first node of three
-    copyPosition(parentMoveThree->Move.finalPosition, startPosition);
-    parentMoveThree->Move.finalStatus = getPieceByPosition(initialBoardStatus, startPosition);
-    parentMoveThree->Move.isJump = false;
-    parentMoveThree->parent = NULL;
-    parentMoveThree->chidren = NULL;
-    //first try to build jump three list
-    generateJumpThreeForPiece(initialBoardStatus, parentMoveThree);
+    //set first node of tree
+    copyPosition(parentMoveTree->Move.finalPosition, startPosition);
+    parentMoveTree->Move.finalStatus = getPieceByPosition(initialBoardStatus, startPosition);
+    parentMoveTree->Move.isJump = false;
+    parentMoveTree->parent = NULL;
+    parentMoveTree->chidren = NULL;
+    //first try to build jump tree list
+    generateJumpTreeForPiece(initialBoardStatus, parentMoveTree);
 
     // second try to build move list if we don't have jumps
-    if (!parentMoveThree->chidren)
+    if (!parentMoveTree->chidren)
     {
         //check if current piece is checker
         if (getPieceByPosition(initialBoardStatus, startPosition) == BLACK_CHECKER ||
             getPieceByPosition(initialBoardStatus, startPosition) == WHITE_CHECKER)
         {
-            buildNotJumpThreeForNotKingPiece(initialBoardStatus, parentMoveThree);
+            buildNotJumpTreeForNotKingPiece(initialBoardStatus, parentMoveTree);
         }
         else
         {
             //if current piece is king;
-            buildNotJumpThreeForKingPiece(initialBoardStatus, parentMoveThree);
+            buildNotJumpTreeForKingPiece(initialBoardStatus, parentMoveTree);
         }
     }
 }

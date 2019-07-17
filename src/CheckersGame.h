@@ -23,13 +23,13 @@ extern "C"
     //The function that finds all possible moves from current position for a checker
     void findPossiblePieceJumps(const char board[8][8], const int startPosition[2], MoveList **list);
 
-    //The function that builds Move Three List for current piece
-    void generateJumpThreeForPiece(const char board[8][8], MoveThree *parentMoveThree);
+    //The function that builds Move Tree List for current piece
+    void generateJumpTreeForPiece(const char board[8][8], MoveTree *parentMoveTree);
 
-    //The function  that generates the move three for a piece
-    void generateMoveThreeForPiece(const char initialBoardStatus[8][8],
+    //The function  that generates the move tree for a piece
+    void generateMoveTreeForPiece(const char initialBoardStatus[8][8],
                                    const int startPosition[2],
-                                   MoveThree *parentMoveThree);
+                                   MoveTree *parentMoveTree);
 
     //We try to find piece-empty Pattern for kings
     bool findPieceEmptyDiagonalPattern(const char board[8][8],
@@ -40,8 +40,8 @@ extern "C"
     //The function that can reset board state to inintial state
     void resetBoard(char board[8][8]);
 
-    //build three of possible simple moves for the piece without jumps
-    void buildNotJumpThreeForNotKingPiece(const char board[8][8], MoveThree *parentMoveThree);
+    //build tree of possible simple moves for the piece without jumps
+    void buildNotJumpTreeForNotKingPiece(const char board[8][8], MoveTree *parentMoveTree);
 
     //Function that copy board state to destination
     void copyBoard(char destinationBoard[8][8], const char originalBoard[8][8]);

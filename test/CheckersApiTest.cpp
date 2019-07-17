@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 #include <CheckersGameApi.h>
+#include <GameTree.h>
 #include <sglib.h>
 
 static bool compareBoards(const char board1[8][8], const char board2[8][8])
@@ -100,7 +101,7 @@ TEST_CASE("CheckMove")
     }
 }
 
-TEST_CASE("Check Buid Game Three")
+TEST_CASE("Check Buid Game Tree")
 {
     {
         char board[8][8] = {
@@ -114,17 +115,18 @@ TEST_CASE("Check Buid Game Three")
             {'3', ' ', '3', ' ', '3', ' ', '3', ' '},  //6
             {' ', '3', ' ', '3', ' ', '3', ' ', '3'}}; //7
 
-        struct GameThree *gameThree = generateGameThree(board, WHITE_PLAYER, generateThePossibleMovesForPiece, 1);
+        struct GameTree *gameTree = generateGameTree(board, WHITE_PLAYER, generateThePossibleMovesForPiece, 1);
 
-        REQUIRE(gameThree);
+        REQUIRE(gameTree);
 
-        GameThreeList *currentGameThreeList = NULL;
+        GameTreeList *currentGameTreeList = NULL;
         int count = 0;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct GameThreeList, gameThree->children, currentGameThreeList, next, {
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct GameTreeList, gameTree->children, currentGameTreeList, next, {
             count++;
         });
 
         REQUIRE(count == 7);
+        FreeGameTree(gameTree);
     }
 
     {
@@ -139,23 +141,24 @@ TEST_CASE("Check Buid Game Three")
             {'3', ' ', '3', ' ', '3', ' ', '3', ' '},  //6
             {' ', '3', ' ', '3', ' ', '3', ' ', '3'}}; //7
 
-        struct GameThree *gameThree = generateGameThree(board, WHITE_PLAYER, generateThePossibleMovesForPiece, 2);
+        struct GameTree *gameTree = generateGameTree(board, WHITE_PLAYER, generateThePossibleMovesForPiece, 2);
 
-        REQUIRE(gameThree);
+        REQUIRE(gameTree);
 
-        GameThreeList *currentGameThreeList = NULL;
+        GameTreeList *currentGameTreeList = NULL;
         int count = 0;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct GameThreeList, gameThree->children, currentGameThreeList, next, {
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct GameTreeList, gameTree->children, currentGameTreeList, next, {
             count++;
         });
         REQUIRE(count == 2);
 
         //next move must have 7 moves
         int nextCount = 0;
-        SGLIB_LIST_MAP_ON_ELEMENTS(struct GameThreeList, gameThree->children->gameThree.children, currentGameThreeList, next, {
+        SGLIB_LIST_MAP_ON_ELEMENTS(struct GameTreeList, gameTree->children->gameTree.children, currentGameTreeList, next, {
             nextCount++;
         });
 
         REQUIRE(nextCount == 7);
+        FreeGameTree(gameTree);
     }
 }
