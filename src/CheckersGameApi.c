@@ -3,7 +3,7 @@
 #include <sglib.h>
 
 #include "CheckersGame.h"
-#include "CheckersGameAPI.h"
+#include "CheckersGameApi.h"
 
 void resetBoardToInitialState(char board[8][8])
 {
