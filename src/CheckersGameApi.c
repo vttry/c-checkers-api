@@ -24,21 +24,6 @@ static void buildBoardList(const char currentBoard[8][8], BoardList **list, Move
 
     //we have to make changes on board using children nodes and recursively call current function
     MoveTreeList *curentNode = NULL;
-
-    // SGLIB_LIST_MAP_ON_ELEMENTS(struct MoveTreeList, parentNode->chidren, curentNode, next, {
-    //     char newBoard[8][8];
-    //     copyBoard(newBoard, currentBoard);
-    //     newBoard[parentNode->Move.finalPosition[0]][parentNode->Move.finalPosition[1]] = BLACK_EMPTY_FIELD;
-    //     newBoard[curentNode->moveTree.Move.finalPosition[0]][curentNode->moveTree.Move.finalPosition[1]] =
-    //         curentNode->moveTree.Move.finalStatus;
-    //     if (curentNode->moveTree.Move.isJump)
-    //     {
-    //         newBoard[curentNode->moveTree.Move.capturedPosition[0]][curentNode->moveTree.Move.capturedPosition[1]] =
-    //             BLACK_EMPTY_FIELD;
-    //     }
-    //     buildBoardList(newBoard, list, &curentNode->moveTree);
-    // });
-
     curentNode = parentNode->chidren;
     while (curentNode)
     {

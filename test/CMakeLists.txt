@@ -1,4 +1,4 @@
-project(CheckersTests  CXX;RC)
+project(CheckersTests  CXX;C)
 
 # The test program
 add_executable(CheckersTests CheckersTest.cpp)
