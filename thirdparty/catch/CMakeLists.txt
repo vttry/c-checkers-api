@@ -1,4 +1,4 @@
-project (Catch CXX;RC)
+project (Catch CXX)
 
 # Header only library, therefore INTERFACE
 add_library(catch INTERFACE)
