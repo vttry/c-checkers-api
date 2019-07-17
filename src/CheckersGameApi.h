@@ -15,8 +15,7 @@ extern "C"
     } BoardList;
 
     typedef BoardList *(*GenerateThePossibleMovesForPieceFunction)(const char initialBoardStatus[8][8],
-                                                                   const int startPosition[2],
-                                                                   BoardList *boardList);
+                                                                   const int startPosition[2]);
 
     typedef bool (*CheckMoveFunction)(const char initialBoardStatus[8][8],
                                       const int startPosition[2],
@@ -27,7 +26,7 @@ extern "C"
     bool checkMove(const char initialBoardStatus[8][8],
                    const int startPosition[2],
                    const int finalPosition[2],
-                   const GenerateThePossibleMovesForPieceFunction *generateThePossibleMovesForPieceFunction);
+                   const GenerateThePossibleMovesForPieceFunction generateThePossibleMovesForPieceFunction);
 
     //The function that  generates the possible moves for a piece
     BoardList *generateThePossibleMovesForPiece(const char initialBoardStatus[8][8],
@@ -37,7 +36,7 @@ extern "C"
     //played up to a specified number of moves.
     GameThree *generateGameThree(const char initialBoardStatus[8][8],
                                  const int playerColor,
-                                 GenerateThePossibleMovesForPieceFunction *generateThePossibleMovesForPieceFunction,
+                                 GenerateThePossibleMovesForPieceFunction generateThePossibleMovesForPieceFunction,
                                  const int maximumDepthOfMuves);
 
     //The function that reset board to initial state

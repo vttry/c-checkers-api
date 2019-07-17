@@ -4,7 +4,7 @@
 #include "CheckersGame.h"
 
 //Function that check if a coordinate is in the rigth range and on a black field
-static bool checkCoordinate(const int position[2])
+bool checkCoordinate(const int position[2])
 {
     //check if position in the right range
     if (position == NULL ||
@@ -19,7 +19,7 @@ static bool checkCoordinate(const int position[2])
 }
 
 //check if checker is black
-static bool isBlackPiece(const char checker)
+bool isBlackPiece(const char checker)
 {
     return checker > '2';
 };
@@ -58,7 +58,7 @@ static void setPieceByTypeAndPosition(char board[8][8], char type, const int pos
 }
 
 //return piece by position
-static const char getPieceByPosition(const char board[8][8], const int position[2])
+const char getPieceByPosition(const char board[8][8], const int position[2])
 {
     return board[position[0]][position[1]];
 }

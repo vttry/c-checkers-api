@@ -73,3 +73,29 @@ TEST_CASE("Build board list and check")
         free(currentItem);
     });
 }
+
+TEST_CASE("CheckMove")
+{
+    char board[8][8] = {
+        //0    1    2    3    4    5    6    7
+        {'1', ' ', '1', ' ', '1', ' ', '1', ' '},  //0
+        {' ', '1', ' ', '1', ' ', '1', ' ', '1'},  //1
+        {'1', ' ', '1', ' ', '1', ' ', '1', ' '},  //2
+        {' ', '#', ' ', '#', ' ', '#', ' ', '#'},  //3
+        {'#', ' ', '#', ' ', '1', ' ', '#', ' '},  //4
+        {' ', '3', ' ', '3', ' ', '3', ' ', '3'},  //5
+        {'3', ' ', '3', ' ', '3', ' ', '3', ' '},  //6
+        {' ', '3', ' ', '3', ' ', '3', ' ', '3'}}; //7
+    {
+        int startPosition[2] = {5, 3};
+        int finalPosition[2] = {3, 5};
+        bool ret = checkMove(board, startPosition, finalPosition, generateThePossibleMovesForPiece);
+        REQUIRE(ret == true);
+    }
+    {
+        int startPosition[2] = {5, 3};
+        int finalPosition[2] = {3, 1};
+        bool ret = checkMove(board, startPosition, finalPosition, generateThePossibleMovesForPiece);
+        REQUIRE(ret == false);
+    }
+}

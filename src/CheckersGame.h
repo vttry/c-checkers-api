@@ -11,6 +11,14 @@
 extern "C"
 {
 #endif
+    //Function that check if a coordinate is in the rigth range and on a black field
+    bool checkCoordinate(const int position[2]);
+
+    //check if checker is black
+    bool isBlackPiece(const char checker);
+
+    //return piece by position
+    const char getPieceByPosition(const char board[8][8], const int position[2]);
 
     //The function that finds all possible moves from current position for a checker
     void findPossiblePieceJumps(const char board[8][8], const int startPosition[2], MoveList **list);
